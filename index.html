@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Pickalo: Leveraging 6D Pose Estimation for Low-Cost Industrial Bin Picking">
+  <meta name="keywords" content="Bin picking, foundation models, depth enhancement, 6D pose estimation, robotics">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pickalo: Leveraging 6D Pose Estimation for Low-Cost Industrial Bin Picking</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/blank.jpeg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- Title & Authors -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Pickalo: Leveraging 6D Pose Estimation for Low-Cost Industrial Bin Picking</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Anonymous Authors<sup>1</sup></span>
+          </div>
+          <div class="is-size-6 publication-affiliations">
+            <span class="author-block"><sup>1</sup>Affiliations Anonymized</span>
+          </div>
+          <div class="is-size-7 publication-note">
+            <span>Author details withheld for anonymous review</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser: Snippet Video -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/snippet.mp4"
+                type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        Pickalo achieves up to ~600 mean picks per hour with 96&ndash;99% grasp success on densely filled euroboxes, using only a consumer-grade RGB-D camera and a UR5e with a parallel-jaw gripper.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<!-- Abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Bin picking in real industrial environments remains challenging due to severe clutter, occlusions, and the high cost of traditional 3D sensing setups. We present <strong>Pickalo</strong>, a modular 6D pose&ndash;based bin-picking pipeline built entirely on low-cost hardware. A wrist-mounted RGB-D camera actively explores the scene from multiple viewpoints, while raw stereo streams are processed with BridgeDepth to obtain refined depth maps suitable for accurate collision reasoning. Object instances are segmented with a Mask R-CNN model trained purely on photorealistic synthetic data and localized using the zero-shot SAM-6D pose estimator. A pose buffer module fuses multi-view observations over time, handling object symmetries and significantly reducing pose noise. Offline, we generate and curate large sets of antipodal grasp candidates per object; online, a utility-based ranking and fast collision checking are queried for the grasp planning. Deployed on a UR5e with a parallel-jaw gripper and an Intel RealSense D435i, Pickalo achieves up to ~600 mean picks per hour with 96&ndash;99% grasp success and robust performance over 30-minute runs on densely filled euroboxes. Ablation studies demonstrate the benefits of enhanced depth estimation and the pose buffer for long-term stability and throughput in realistic industrial conditions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Pipeline Overview -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Pipeline Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            Pickalo follows a modular architecture integrating state-of-the-art perception and planning components. A stereo-pair image is acquired and processed by a depth estimation block (BridgeDepth) to obtain enhanced depth. The resulting depth is aligned to the RGB frame and provided to the SAM-6D pose estimator together with the object CAD model. A Pose Buffer fuses multi-view pose estimates over time, handling symmetries and filtering unreliable detections. The scene state&mdash;composed of target objects, static objects (bin, table), and occupied voxels&mdash;is then used by the grasp planner, which ranks pre-computed antipodal grasp candidates and performs fast collision checking to find a feasible extraction trajectory.
+          </p>
+        </div>
+        <img src="./static/images/pipeline.png" alt="Pickalo pipeline overview" style="width: 100%;">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Sped-up Video: Throughput Demo -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Reliability &amp; Throughput</h2>
+        <div class="content has-text-justified">
+          <p>
+            Below is a sped-up video of Pickalo continuously emptying a densely filled eurobox. The system maintains high throughput (~600 picks/hour) and over 96% grasp success rate across 30-minute runs, demonstrating its long-term reliability in realistic industrial conditions.
+          </p>
+        </div>
+        <div class="content has-text-centered">
+          <video id="timelapse-video" autoplay controls muted loop playsinline width="100%">
+            <source src="./static/videos/timelapse.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Object Categories: Video Grid -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3">Performance Across Object Categories</h2>
+        <div class="content has-text-justified">
+          <p>
+            Pickalo was validated on three classes of real industrial metallic components&mdash;featuring highly reflective surfaces and complex geometries&mdash;picked from densely filled standard euroboxes. The table below summarizes the grasp success rate over 1,000 pipeline iterations per category.
+          </p>
+        </div>
+
+        <!-- Results Table -->
+        <table class="table is-bordered is-striped is-hoverable is-fullwidth" style="margin-bottom: 2rem;">
+          <thead>
+            <tr>
+              <th>Geometry</th>
+              <th>Success Rate (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Square</td>
+              <td>98.8</td>
+            </tr>
+            <tr>
+              <td>Cylindrical</td>
+              <td>97.7</td>
+            </tr>
+            <tr>
+              <td>Complex</td>
+              <td>96.1</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Videos per object category -->
+        <div class="columns is-centered" style="margin-top: 1.5rem;">
+          <div class="column is-half has-text-centered">
+            <video controls muted loop playsinline width="100%">
+              <source src="./static/videos/cuboid.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-half has-text-centered">
+            <video controls muted loop playsinline width="100%">
+              <source src="./static/videos/frl.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Key Results / Ablation Highlights -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Key Results</h2>
+
+        <div class="columns">
+          <!-- Depth Ablation -->
+          <div class="column">
+            <h3 class="title is-4">Depth Enhancement</h3>
+            <div class="content has-text-justified">
+              <p>
+                Using BridgeDepth instead of raw RealSense depth maintains <strong>96.3% success rate</strong> over 30 minutes, whereas the RealSense baseline drops to <strong>88.5%</strong>. The raw depth contains holes and artifacts from metallic reflections, leading to missed detections and erroneous collision checks over time.
+              </p>
+            </div>
+          </div>
+          <!-- Pose Buffer Ablation -->
+          <div class="column">
+            <h3 class="title is-4">Pose Buffer</h3>
+            <div class="content has-text-justified">
+              <p>
+                The multi-view Pose Buffer increases MPPH by <strong>10&ndash;12%</strong> and boosts success rate by <strong>11&ndash;13 percentage points</strong>. By requiring at least two consistent observations before declaring an object graspable, it filters out unreliable pose estimates and dramatically reduces grasp failures.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Conclusions -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Conclusions</h2>
+        <div class="content has-text-justified">
+          <p>
+            Pickalo demonstrates that industrially relevant bin-picking performance does not require specialized or expensive sensing hardware. By carefully integrating modern 6D pose estimation, synthetic-data&ndash;driven instance segmentation, enhanced depth via deep stereo matching, and a temporal pose buffer, the system achieves up to ~600 mean picks per hour with 96&ndash;99% grasp success rates over continuous 30-minute runs on densely filled euroboxes with challenging metallic objects.
+          </p>
+          <p>
+            The modular architecture means each component&mdash;perception, pose fusion, grasp selection, and motion planning&mdash;can be replaced or upgraded independently as new algorithms become available, without redesigning the entire pipeline.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- BibTeX -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{pickalo2025,
+  author    = {Anonymous Authors},
+  title     = {Pickalo: Leveraging 6D Pose Estimation for Low-Cost Industrial Bin Picking},
+  journal   = {},
+  year      = {2025},
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This website template is borrowed from <a
+              href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>. We thank the authors for open-sourcing it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
